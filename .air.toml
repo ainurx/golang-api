@@ -1,0 +1,5 @@
+# .air.toml
+
+root = "."  # The root directory of your project
+build = "go build -o ./tmp/main ."
+bin = "./tmp/main"
