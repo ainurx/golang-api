@@ -7,5 +7,5 @@ import (
 )
 
 func Routes(e *echo.Echo) {
-	e.GET("/user/:id", handlers.GetUser)
+	e.POST("/user/:id", handlers.GetUser)
 }
