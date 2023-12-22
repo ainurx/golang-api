@@ -2,19 +2,21 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"os"
 	"strconv"
 
 	// External Dependencies
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
+
 	"github.com/labstack/echo/v4"
 
 	// Internal Dependencies
+	"webapi/app/common"
 	"webapi/app/models"
 )
+
+func createUser(c echo.Context) error {
+	return c.String(http.StatusOK, "No process yet")
+}
 
 func GetUser(c echo.Context) error {
 	id := c.Param("id")
@@ -28,28 +30,6 @@ func GetUser(c echo.Context) error {
 	firstName := c.FormValue("firstName")
 	lastName := c.FormValue("lastName")
 
-	var (
-		t *jwt.Token
-		s string
-	)
-	envErr := godotenv.Load()
-	if envErr != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	key := []byte(os.Getenv("SECRET_KEY"))
-	t = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username":  username,
-		"firstName": firstName,
-		"lastName":  lastName,
-	})
-	s, err = t.SignedString(key)
-
-	if err != nil {
-		log.Println("Error signing JWT:", err)
-		return c.String(http.StatusInternalServerError, "Internal Server Error")
-	}
-
 	result := models.User{
 		Id:        intId,
 		Username:  username,
@@ -59,5 +39,13 @@ func GetUser(c echo.Context) error {
 	}
 	fmt.Print(result)
 
-	return c.String(http.StatusOK, s)
+	token := common.CreateToken(result)
+
+	fmt.Println("==== HM ====")
+
+	return c.String(http.StatusOK, token)
+}
+
+func SignIn(c echo.Context) error {
+	return c.String(http.StatusOK, "No process yet")
 }
