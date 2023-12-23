@@ -14,8 +14,24 @@ import (
 	"webapi/app/models"
 )
 
-func createUser(c echo.Context) error {
-	return c.String(http.StatusOK, "No process yet")
+func CreateUser(c echo.Context) error {
+
+	result := make(chan models.User)
+
+	go func() {
+
+		result <- models.User{
+			Id:        1,
+			Username:  "Ainurcx",
+			Password:  "ainur123",
+			FirstName: "Ainur",
+			LastName:  "Rahmat",
+		}
+	}()
+
+	hasil := <-result
+
+	return c.JSON(http.StatusOK, hasil)
 }
 
 func GetUser(c echo.Context) error {
@@ -40,8 +56,6 @@ func GetUser(c echo.Context) error {
 	fmt.Print(result)
 
 	token := common.CreateToken(result)
-
-	fmt.Println("==== HM ====")
 
 	return c.String(http.StatusOK, token)
 }
