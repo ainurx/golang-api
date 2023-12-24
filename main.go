@@ -1,12 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 
-	"webapi/app/common"
+	// "webapi/app/common"
 	"webapi/app/routes"
 )
 
@@ -17,16 +16,17 @@ func main() {
 		return c.String(http.StatusOK, "GOLANG API")
 	})
 
-	db, err := common.ConnectDB()
+	// db, err := common.ConnectDB()
 
-	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Println("Database connected successfully")
-	}
+	// if err != nil {
+	// 	fmt.Println(err.Error())
+	// } else {
+	// 	fmt.Println("Database connected successfully")
+	// }
 
 	// db.Close()
-	fmt.Println(db)
+	// fmt.Println(db)
+	// common.CreateTable()
 
 	routes.Routes(e)
 

@@ -15,17 +15,36 @@ import (
 )
 
 func CreateUser(c echo.Context) error {
+	username := c.FormValue("username")
+	password := c.FormValue("password")
+	firstName := c.FormValue("firstName")
+	lastName := c.FormValue("lastName")
+
+	if common.IsEmpty(username) {
+		return c.String(http.StatusBadRequest, "Username is required.")
+	}
+
+	if common.IsEmpty(password) {
+		return c.String(http.StatusBadRequest, "Password is required.")
+	}
+
+	if common.IsEmpty(firstName) {
+		return c.String(http.StatusBadRequest, "First name is required.")
+	}
+
+	if common.IsEmpty(lastName) {
+		return c.String(http.StatusBadRequest, "Last name is required.")
+	}
 
 	result := make(chan models.User)
 
 	go func() {
-
 		result <- models.User{
 			Id:        1,
-			Username:  "Ainurcx",
-			Password:  "ainur123",
-			FirstName: "Ainur",
-			LastName:  "Rahmat",
+			Username:  username,
+			Password:  password,
+			FirstName: firstName,
+			LastName:  lastName,
 		}
 	}()
 
