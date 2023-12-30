@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	// External Dependencies
-
 	"github.com/labstack/echo/v4"
 
 	// Internal Dependencies
@@ -36,21 +35,29 @@ func CreateUser(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Last name is required.")
 	}
 
-	result := make(chan models.User)
+	db, err := common.ConnectDB()
 
-	go func() {
-		result <- models.User{
-			Id:        1,
-			Username:  username,
-			Password:  password,
-			FirstName: firstName,
-			LastName:  lastName,
-		}
-	}()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
-	hasil := <-result
+	hashedPass, err := common.HashPassword(password)
 
-	return c.JSON(http.StatusOK, hasil)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	user := models.User{
+		Username:  username,
+		Password:  hashedPass,
+		FirstName: firstName,
+		LastName:  lastName,
+	}
+
+	result := db.Create(&user)
+
+	fmt.Println(result)
+	return c.JSON(http.StatusOK, user)
 }
 
 func GetUser(c echo.Context) error {

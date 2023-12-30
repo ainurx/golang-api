@@ -7,6 +7,7 @@ import (
 	// External Dependencies
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 
 	// Internal Dependencies
 	"webapi/app/models"
@@ -57,4 +58,18 @@ func ValidateToken(token string) string {
 	}
 
 	return s
+}
+
+func HashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hash), nil
+}
+
+func ComparePassword(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
