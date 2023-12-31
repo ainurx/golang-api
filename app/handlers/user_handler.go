@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -105,27 +104,8 @@ func SignIn(c echo.Context) error {
 		fmt.Println(err.Error())
 	}
 
-	var user models.User
-	db.Find(&user, "username = ?", username)
+	var result models.User
+	db.Find(&result, "username = ?", username)
 
-	result, err := json.Marshal(user)
-
-	if err != nil {
-		fmt.Println("error parsing to JSON")
-		fmt.Println(err.Error())
-	}
-
-	n := len(result)
-	s := string(result[:n])
-	fmt.Println(s)
-
-	var jsonUser models.User
-
-	err = json.Unmarshal([]byte(s), &jsonUser)
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	return c.JSON(http.StatusAccepted, jsonUser)
+	return c.JSON(http.StatusAccepted, result)
 }
