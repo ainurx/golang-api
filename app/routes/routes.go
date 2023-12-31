@@ -7,6 +7,8 @@ import (
 )
 
 func Routes(e *echo.Echo) {
+	e.POST("/signin", handlers.SignIn)
+
 	e.POST("/user", handlers.CreateUser)
 	e.POST("/user/:id", handlers.GetUser)
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -87,5 +88,44 @@ func GetUser(c echo.Context) error {
 }
 
 func SignIn(c echo.Context) error {
-	return c.String(http.StatusOK, "No process yet")
+	username := c.FormValue("username")
+	password := c.FormValue("password")
+
+	if common.IsEmpty(username) {
+		return c.String(http.StatusBadRequest, "Username is required.")
+	}
+
+	if common.IsEmpty(password) {
+		return c.String(http.StatusBadRequest, "Password is required.")
+	}
+
+	db, err := common.ConnectDB()
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	var user models.User
+	db.Find(&user, "username = ?", username)
+
+	result, err := json.Marshal(user)
+
+	if err != nil {
+		fmt.Println("error parsing to JSON")
+		fmt.Println(err.Error())
+	}
+
+	n := len(result)
+	s := string(result[:n])
+	fmt.Println(s)
+
+	var jsonUser models.User
+
+	err = json.Unmarshal([]byte(s), &jsonUser)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	return c.JSON(http.StatusAccepted, jsonUser)
 }
