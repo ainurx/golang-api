@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	// External Dependencies
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 
 	// Internal Dependencies
 	"webapi/app/common"
@@ -105,7 +107,17 @@ func SignIn(c echo.Context) error {
 	}
 
 	var result models.User
-	db.Find(&result, "username = ?", username)
+	if err := db.First(&result, "username = ?", username).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.String(http.StatusNotFound, "User not found")
+		}
+	}
 
-	return c.JSON(http.StatusAccepted, result)
+	if !common.ComparePassword(password, result.Password) {
+		return c.String(http.StatusUnauthorized, "Password not match.")
+	}
+
+	token := common.CreateToken(result)
+
+	return c.String(http.StatusAccepted, token)
 }
