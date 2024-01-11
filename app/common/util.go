@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -38,26 +39,34 @@ func CreateToken(payload models.User) string {
 	return s
 }
 
-func ValidateToken(token string) string {
-	var (
-		t *jwt.Token
-	)
+func ValidateToken(tokenString string) (*jwt.Token, error) {
+	// var (
+	// 	t *jwt.Token
+	// )
 	err := godotenv.Load()
 
 	// if err != nil {
 	// 	log.Fatal(err.Error())
 	// }
 
-	// key := []byte(os.Getenv("SECRET_KEY"))
+	key := []byte(os.Getenv("SECRET_KEY"))
 
-	t = jwt.New(jwt.SigningMethodHS256)
-	s, err := t.SignedString(token)
+	// t = jwt.New(jwt.SigningMethodHS256)
+	// s, err := t.SignedString(token)
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Make sure the signing method is what you expect
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return key, nil
+	})
 
 	if err != nil {
+		fmt.Println("tidaak aman")
 		log.Println(err.Error())
 	}
-
-	return s
+	fmt.Println(token)
+	return token, err
 }
 
 func HashPassword(password string) (string, error) {
