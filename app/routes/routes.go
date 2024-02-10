@@ -10,8 +10,8 @@ import (
 func Routes(e *echo.Echo) {
 	e.POST("/signin", handlers.SignIn)
 
-	e.POST("/user", handlers.CreateUser)
-	e.POST("/user/:id", handlers.GetUser)
+	e.POST("/signup", handlers.SignUp)
+	e.GET("/user/:id", handlers.FindUser)
 
 	e.GET("/book", middleware.UserMiddleware(handlers.GetUserBlogs, handlers.ErrorHandlers))
 }

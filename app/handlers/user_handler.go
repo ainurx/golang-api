@@ -15,7 +15,7 @@ import (
 	"webapi/app/models"
 )
 
-func CreateUser(c echo.Context) error {
+func SignUp(c echo.Context) error {
 	username := c.FormValue("username")
 	password := c.FormValue("password")
 	firstName := c.FormValue("firstName")
@@ -49,43 +49,22 @@ func CreateUser(c echo.Context) error {
 		fmt.Println(err.Error())
 	}
 
-	user := models.User{
+	var user models.User
+	if err := db.First(&user, "username = ?", username).Error; err != nil {
+	} else {
+		return c.String(http.StatusConflict, "Username already exist.")
+	}
+
+	payload := models.User{
 		Username:  username,
 		Password:  hashedPass,
 		FirstName: firstName,
 		LastName:  lastName,
 	}
 
-	result := db.Create(&user)
+	db.Create(&payload)
 
-	fmt.Println(result)
-	return c.JSON(http.StatusOK, user)
-}
-
-func GetUser(c echo.Context) error {
-	id := c.Param("id")
-	intId, err := strconv.Atoi(id)
-	if err != nil {
-		panic(err)
-	}
-
-	username := c.FormValue("username")
-	password := c.FormValue("password")
-	firstName := c.FormValue("firstName")
-	lastName := c.FormValue("lastName")
-
-	result := models.User{
-		Id:        intId,
-		Username:  username,
-		Password:  password,
-		FirstName: firstName,
-		LastName:  lastName,
-	}
-	fmt.Print(result)
-
-	token := common.CreateToken(result)
-
-	return c.String(http.StatusOK, token)
+	return c.JSON(http.StatusOK, payload)
 }
 
 func SignIn(c echo.Context) error {
@@ -120,4 +99,23 @@ func SignIn(c echo.Context) error {
 	token := common.CreateToken(result)
 
 	return c.String(http.StatusAccepted, token)
+}
+
+func FindUser(c echo.Context) error {
+	id := c.Param("id")
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := common.ConnectDB()
+
+	var result models.User
+	if err := db.First(&result, intId).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.String(http.StatusNotFound, "User not found")
+		}
+	}
+
+	return c.JSON(http.StatusOK, result)
 }
